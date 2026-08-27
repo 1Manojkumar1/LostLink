@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const {
   createClaim,
   getMyClaims,
+  getIncomingClaims,
   getItemClaims,
   approveClaim,
   rejectClaim,
@@ -13,6 +14,7 @@ router.use(authMiddleware);
 
 router.post('/', createClaim);
 router.get('/mine', getMyClaims);
+router.get('/incoming', getIncomingClaims);
 router.get('/item/:itemId', getItemClaims);
 router.patch('/:id/approve', approveClaim);
 router.patch('/:id/reject', rejectClaim);

@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Loader2, Package, CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
-import { getMyClaims, getItemClaims } from '../services/claimService';
+import { getMyClaims, getIncomingClaims } from '../services/claimService';
 import ClaimCard from '../components/ClaimCard';
 import Navbar from '../components/Navbar';
-import api from '../services/api';
 
 export default function Claims() {
   const [activeTab, setActiveTab] = useState('my-claims');
@@ -20,36 +19,20 @@ export default function Claims() {
       const res = await getMyClaims();
       setMyClaims(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch claims');
+      setError(err.message || 'Failed to fetch claims');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchItemClaims = async () => {
+  const fetchIncomingClaims = async () => {
     setLoading(true);
     setError('');
     try {
-      const claimsData = [];
-      const itemsRes = await api.get('/items/mine');
-      const myItems = itemsRes.data;
-
-      for (const item of myItems) {
-        if (item.type === 'FOUND') {
-          try {
-            const claimsRes = await getItemClaims(item.id);
-            claimsRes.data.forEach((claim) => {
-              claimsData.push({ ...claim, itemTitle: item.title });
-            });
-          } catch {
-            // skip items without claims access
-          }
-        }
-      }
-
-      setItemClaims(claimsData);
+      const res = await getIncomingClaims();
+      setItemClaims(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch claims');
+      setError(err.message || 'Failed to fetch claims');
     } finally {
       setLoading(false);
     }
@@ -59,7 +42,7 @@ export default function Claims() {
     if (activeTab === 'my-claims') {
       fetchMyClaims();
     } else {
-      fetchItemClaims();
+      fetchIncomingClaims();
     }
   }, [activeTab]);
 
@@ -76,7 +59,7 @@ export default function Claims() {
   return (
     <div className="min-h-screen bg-bg">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="page-container page-section">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-6 h-6 text-primary" />
@@ -132,7 +115,7 @@ export default function Claims() {
           <div className="card mb-6 flex items-center gap-3 border-error/30">
             <AlertCircle className="w-5 h-5 text-error flex-shrink-0" />
             <p className="text-sm text-text-secondary flex-1">{error}</p>
-            <button onClick={activeTab === 'my-claims' ? fetchMyClaims : fetchItemClaims} className="btn-ghost text-sm">Retry</button>
+            <button onClick={activeTab === 'my-claims' ? fetchMyClaims : fetchIncomingClaims} className="btn-ghost text-sm">Retry</button>
           </div>
         )}
 
@@ -167,7 +150,7 @@ export default function Claims() {
         ) : (
           <div className="space-y-4">
             {itemClaims.map((claim) => (
-              <ClaimCard key={claim.id} claim={claim} showActions={true} onUpdate={fetchItemClaims} />
+              <ClaimCard key={claim.id} claim={claim} showActions={true} onUpdate={fetchIncomingClaims} />
             ))}
           </div>
         )}

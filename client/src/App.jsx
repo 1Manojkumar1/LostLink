@@ -37,7 +37,14 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/items" element={<BrowseItems />} />
             <Route path="/items/:id" element={<ItemDetails />} />
-            <Route path="/matches" element={<Matches />} />
+            <Route
+              path="/matches"
+              element={
+                <ProtectedRoute>
+                  <Matches />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/login"
               element={

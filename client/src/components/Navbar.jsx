@@ -31,8 +31,7 @@ export default function Navbar() {
     ...(isAuthenticated
       ? [
           { to: '/matches', label: 'Matches', icon: GitCompare },
-          { to: '/claims', label: 'Claims', icon: Shield },
-          { to: '/my-reports', label: 'My Reports', icon: FileText },
+          { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         ]
       : []),
   ];
@@ -40,7 +39,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="border-b border-border bg-bg/80 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="border-b border-border bg-bg sticky top-0 z-50">
       <div className="page-container h-14 flex items-center justify-between">
         <Logo size="md" />
 
@@ -68,11 +67,11 @@ export default function Navbar() {
             <>
               <Link to="/report?type=LOST" className="btn-secondary text-sm flex items-center gap-1.5">
                 <PackageX className="w-3.5 h-3.5" />
-                Lost
+                Report Lost
               </Link>
               <Link to="/report?type=FOUND" className="btn-primary text-sm flex items-center gap-1.5">
                 <PackageCheck className="w-3.5 h-3.5" />
-                Found
+                Report Found
               </Link>
 
               {/* User Menu */}

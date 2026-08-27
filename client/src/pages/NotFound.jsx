@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 export default function NotFound() {
@@ -11,9 +12,9 @@ export default function NotFound() {
           <p className="text-text-secondary mb-6">
             The page you're looking for doesn't exist or has been moved.
           </p>
-          <a href="/" className="btn-primary inline-flex items-center gap-2">
+          <Link to="/" className="btn-primary inline-flex items-center gap-2">
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

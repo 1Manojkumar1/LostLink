@@ -1,58 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GitCompare, Loader2, AlertCircle } from 'lucide-react';
-import { getItems } from '../services/itemService';
-import { getItemMatches } from '../services/matchService';
+import { getMyMatches } from '../services/matchService';
 import MatchCard from '../components/MatchCard';
 import Navbar from '../components/Navbar';
 
 export default function Matches() {
   const [allMatches, setAllMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fetchingMatches, setFetchingMatches] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchItemsAndMatches = async () => {
+    const fetchMatches = async () => {
       setLoading(true);
       setError('');
       try {
-        const itemsRes = await getItems({ limit: 50 });
-        setFetchingMatches(true);
-
-        const matchesPromises = itemsRes.data.map((item) =>
-          getItemMatches(item.id).catch(() => ({ data: { matches: [] } }))
-        );
-        const matchesResults = await Promise.all(matchesPromises);
-
-        const combinedMatches = [];
-        matchesResults.forEach((result, index) => {
-          if (result.data && result.data.matches) {
-            result.data.matches.forEach((match) => {
-              combinedMatches.push({ ...match, sourceItem: itemsRes.data[index] });
-            });
-          }
-        });
-
-        const seenIds = new Set();
-        const uniqueMatches = combinedMatches.filter((match) => {
-          const key = `${match.item.id}-${match.sourceItem.id}`;
-          if (seenIds.has(key)) return false;
-          seenIds.add(key);
-          return true;
-        });
-
-        uniqueMatches.sort((a, b) => b.score - a.score);
-        setAllMatches(uniqueMatches);
+        const res = await getMyMatches();
+        setAllMatches(res.data || []);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch matches');
+        setError(err.message || 'Failed to fetch matches');
       } finally {
         setLoading(false);
-        setFetchingMatches(false);
       }
     };
 
-    fetchItemsAndMatches();
+    fetchMatches();
   }, []);
 
   if (loading) {
@@ -75,12 +47,6 @@ export default function Matches() {
           <p className="page-subtitle">
             LostLink compares reports using category, location, description, and date.
           </p>
-          {fetchingMatches && (
-            <p className="text-sm text-text-muted mt-2 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Finding possible matches...
-            </p>
-          )}
         </div>
 
         {error && (
@@ -90,7 +56,7 @@ export default function Matches() {
           </div>
         )}
 
-        {!fetchingMatches && !error && allMatches.length === 0 && (
+        {!loading && !error && allMatches.length === 0 && (
           <div className="text-center py-20">
             <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mx-auto mb-4">
               <GitCompare className="w-8 h-8 text-text-muted" />

@@ -17,7 +17,7 @@ export default function MyReports() {
         const res = await getMyItems();
         setItems(res.data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load your reports');
+        setError(err.message || 'Failed to load your reports');
       } finally {
         setLoading(false);
       }

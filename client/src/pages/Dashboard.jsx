@@ -5,13 +5,12 @@ import {
   Loader2, ArrowRight, LayoutDashboard, AlertCircle
 } from 'lucide-react';
 import { getMyItems } from '../services/itemService';
-import { getMyClaims } from '../services/claimService';
-import { getItemMatches } from '../services/matchService';
+import { getMyClaims, getIncomingClaims } from '../services/claimService';
+import { getMyMatches } from '../services/matchService';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/formatDate';
 import StatusBadge from '../components/StatusBadge';
 import Navbar from '../components/Navbar';
-import api from '../services/api';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -30,50 +29,23 @@ export default function Dashboard() {
       setLoading(true);
       setError('');
       try {
-        const itemsRes = await getMyItems();
+        const [itemsRes, claimsRes, incomingRes, matchesRes] = await Promise.all([
+          getMyItems(),
+          getMyClaims(),
+          getIncomingClaims(),
+          getMyMatches().catch(() => ({ data: [] })),
+        ]);
+
         const allItems = itemsRes.data || [];
         const lostItems = allItems.filter((i) => i.type === 'LOST');
         const foundItems = allItems.filter((i) => i.type === 'FOUND');
-
-        const claimsRes = await getMyClaims();
         const myClaims = claimsRes.data || [];
-
-        const receivedClaims = [];
-        for (const item of foundItems) {
-          try {
-            const res = await api.get(`/claims/item/${item.id}`);
-            if (res.data) receivedClaims.push(...res.data);
-          } catch {
-            // skip
-          }
-        }
-
-        let matches = [];
-        try {
-          const activeItems = allItems.filter((i) => i.status === 'ACTIVE').slice(0, 10);
-          const matchPromises = activeItems.map((item) =>
-            getItemMatches(item.id)
-              .then((res) => (res.data?.matches || []).map((m) => ({ ...m, sourceItem: item })))
-              .catch(() => [])
-          );
-          const matchResults = await Promise.all(matchPromises);
-          matches = matchResults.flat();
-          const seen = new Set();
-          matches = matches.filter((m) => {
-            const key = `${m.item.id}-${m.sourceItem.id}`;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-          matches.sort((a, b) => b.score - a.score);
-          matches = matches.slice(0, 5);
-        } catch {
-          // skip
-        }
+        const receivedClaims = incomingRes.data || [];
+        const matches = (matchesRes.data || []).slice(0, 5);
 
         setData({ lostItems, foundItems, matches, myClaims, receivedClaims });
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load dashboard');
+        setError(err.message || 'Failed to load dashboard');
       } finally {
         setLoading(false);
       }
@@ -132,18 +104,18 @@ export default function Dashboard() {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Lost Reports', value: totalLost, icon: PackageX, color: 'error' },
-            { label: 'Found Reports', value: totalFound, icon: PackageCheck, color: 'success' },
-            { label: 'Possible Matches', value: totalMatches, icon: GitCompare, color: 'primary' },
-            { label: 'Recovered', value: totalRecovered, icon: CheckCircle2, color: 'info' },
+            { label: 'Lost Reports', value: totalLost, icon: PackageX, bgClass: 'bg-error/10', textClass: 'text-error' },
+            { label: 'Found Reports', value: totalFound, icon: PackageCheck, bgClass: 'bg-success/10', textClass: 'text-success' },
+            { label: 'Possible Matches', value: totalMatches, icon: GitCompare, bgClass: 'bg-primary/10', textClass: 'text-primary' },
+            { label: 'Recovered', value: totalRecovered, icon: CheckCircle2, bgClass: 'bg-info/10', textClass: 'text-info' },
           ].map((stat) => (
             <div key={stat.label} className="card">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 bg-${stat.color}/10 rounded-lg flex items-center justify-center`}>
-                  <stat.icon className={`w-5 h-5 text-${stat.color}`} />
+                <div className={`w-10 h-10 ${stat.bgClass} rounded-lg flex items-center justify-center`}>
+                  <stat.icon className={`w-5 h-5 ${stat.textClass}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-text">{stat.value}</p>
+                  <p className="text-2xl font-bold text-text font-mono">{stat.value}</p>
                   <p className="text-xs text-text-muted">{stat.label}</p>
                 </div>
               </div>

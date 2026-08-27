@@ -11,7 +11,7 @@ export default function BrowseItems() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ type: '', category: '', location: '' });
+  const [filters, setFilters] = useState({ type: '', category: '', location: '', date: '', status: '' });
   const [pagination, setPagination] = useState({ page: 1, limit: 12, totalItems: 0, totalPages: 0 });
 
   const fetchItems = async () => {
@@ -23,12 +23,14 @@ export default function BrowseItems() {
       if (filters.type) params.type = filters.type;
       if (filters.category) params.category = filters.category;
       if (filters.location) params.location = filters.location;
+      if (filters.date) params.date = filters.date;
+      if (filters.status) params.status = filters.status;
 
       const res = await getItems(params);
       setItems(res.data);
       setPagination(res.pagination);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load items');
+      setError(err.message || 'Failed to load items');
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ export default function BrowseItems() {
   };
 
   const handleClearFilters = () => {
-    setFilters({ type: '', category: '', location: '' });
+    setFilters({ type: '', category: '', location: '', date: '', status: '' });
     setSearch('');
     setPagination((prev) => ({ ...prev, page: 1 }));
   };

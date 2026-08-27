@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const res = await api.get('/auth/me');
-        setUser(res.data);
+        setUser(res.data?.user || res.data);
       } catch {
         localStorage.removeItem('lostlink_token');
       } finally {
@@ -49,17 +49,17 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!user;
 
+  const value = useMemo(() => ({
+    user,
+    loading,
+    isAuthenticated,
+    login,
+    register,
+    logout,
+  }), [user, loading, isAuthenticated]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAuthenticated,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

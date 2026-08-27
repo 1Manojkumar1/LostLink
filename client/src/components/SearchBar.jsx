@@ -41,6 +41,7 @@ export default function SearchBar({ onSearch, initialValue = '' }) {
         onChange={handleChange}
         placeholder="Search items by title, description, category..."
         className="input pl-10 pr-10"
+        aria-label="Search items"
       />
       {value && (
         <button

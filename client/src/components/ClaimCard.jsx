@@ -16,7 +16,7 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
       await approveClaim(claim.id);
       onUpdate();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to approve claim');
+      setError(err.message || 'Failed to approve claim');
     } finally {
       setLoading(false);
     }
@@ -29,7 +29,7 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
       await rejectClaim(claim.id);
       onUpdate();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reject claim');
+      setError(err.message || 'Failed to reject claim');
     } finally {
       setLoading(false);
     }

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { MapPin, Calendar, Tag, Package, Shield, Loader2, Trash2, Edit, ArrowLeft, GitCompare, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  MapPin, Calendar, Tag, Package, Shield, Loader2, Trash2, ArrowLeft,
+  GitCompare, CheckCircle2, Clock, User, Phone, Mail, Info, Lock
+} from 'lucide-react';
 import { getItemById, deleteItem } from '../services/itemService';
 import { getItemMatches } from '../services/matchService';
 import { useAuth } from '../context/AuthContext';
 import { formatDateLong } from '../utils/formatDate';
+import { LOCATION_TYPES } from '../utils/constants';
 import MatchCard from '../components/MatchCard';
 import ClaimModal from '../components/ClaimModal';
 import StatusBadge from '../components/StatusBadge';
@@ -30,7 +34,7 @@ export default function ItemDetails() {
         const res = await getItemById(id);
         setItem(res.data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load item');
+        setError(err.message || 'Failed to load item');
       } finally {
         setLoading(false);
       }
@@ -60,7 +64,7 @@ export default function ItemDetails() {
       await deleteItem(id);
       navigate('/items');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete item');
+      setError(err.message || 'Failed to delete item');
       setShowDeleteModal(false);
     } finally {
       setDeleting(false);
@@ -97,23 +101,35 @@ export default function ItemDetails() {
   }
 
   const isOwner = user && item.userId && user.id === item.userId._id;
+  const locationLabel = LOCATION_TYPES.find((l) => l.value === item.locationType)?.label;
 
   return (
     <div className="min-h-screen bg-bg">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <Link to="/items" className="inline-flex items-center gap-2 text-text-secondary hover:text-text mb-6 transition-colors">
+      <div className="page-container page-section">
+        <Link to="/items" className="inline-flex items-center gap-2 text-text-secondary hover:text-text mb-6 transition-colors text-sm font-medium">
           <ArrowLeft className="w-4 h-4" />
           Back to Browse
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image */}
-          <div className="aspect-square bg-surface rounded-xl flex items-center justify-center overflow-hidden border border-border">
-            {item.image ? (
-              <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-            ) : (
-              <Package className="w-24 h-24 text-text-muted" />
+          {/* Image Gallery */}
+          <div className="space-y-4">
+            <div className="aspect-square bg-surface rounded-xl flex items-center justify-center overflow-hidden border border-border">
+              {item.image ? (
+                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+              ) : (
+                <Package className="w-24 h-24 text-text-muted" />
+              )}
+            </div>
+            {item.photos && item.photos.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {item.photos.slice(0, 4).map((photo, i) => (
+                  <div key={i} className="aspect-square bg-surface rounded-lg overflow-hidden border border-border">
+                    <img src={photo} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
@@ -133,18 +149,100 @@ export default function ItemDetails() {
               </div>
               <div className="flex items-center gap-3 text-text-secondary">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
-                <span>{item.location}</span>
+                <span>{item.location}{locationLabel ? ` (${locationLabel})` : ''}</span>
               </div>
               <div className="flex items-center gap-3 text-text-secondary">
                 <Calendar className="w-4 h-4 flex-shrink-0" />
-                <span>{formatDateLong(item.date)}</span>
+                <span>{formatDateLong(item.date)}{item.lostTime ? ` at ${item.lostTime}` : ''}</span>
               </div>
             </div>
+
+            {/* Item attributes */}
+            {(item.brand || item.model || item.color || item.size) && (
+              <div className="mb-6">
+                <h2 className="section-title mb-2">Details</h2>
+                <div className="flex flex-wrap gap-3">
+                  {item.brand && <span className="text-sm bg-surface-elevated px-3 py-1 rounded-md text-text-secondary">{item.brand}</span>}
+                  {item.model && <span className="text-sm bg-surface-elevated px-3 py-1 rounded-md text-text-secondary">{item.model}</span>}
+                  {item.color && <span className="text-sm bg-surface-elevated px-3 py-1 rounded-md text-text-secondary">{item.color}</span>}
+                  {item.size && <span className="text-sm bg-surface-elevated px-3 py-1 rounded-md text-text-secondary">{item.size}</span>}
+                </div>
+              </div>
+            )}
+
+            {item.distinctiveFeatures && (
+              <div className="mb-6">
+                <h2 className="section-title mb-2">Distinctive Features</h2>
+                <p className="text-text-secondary text-sm">{item.distinctiveFeatures}</p>
+              </div>
+            )}
 
             <div className="mb-6">
               <h2 className="section-title mb-2">Description</h2>
               <p className="text-text-secondary leading-relaxed">{item.description}</p>
             </div>
+
+            {item.approximateValue && (
+              <div className="mb-6">
+                <h2 className="section-title mb-2">Approximate Value</h2>
+                <p className="text-text-secondary">${item.approximateValue}</p>
+              </div>
+            )}
+
+            {item.circumstances && (
+              <div className="mb-6">
+                <h2 className="section-title mb-2">Circumstances</h2>
+                <p className="text-text-secondary text-sm leading-relaxed">{item.circumstances}</p>
+              </div>
+            )}
+
+            {/* Owner-only: Identification info */}
+            {isOwner && (item.serialNumber || item.imei || item.deviceModel || item.engraving || item.uniqueMarkings || item.stickers) && (
+              <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lock className="w-4 h-4 text-text-muted" />
+                  <h2 className="text-sm font-medium text-text">Identification (Private)</h2>
+                </div>
+                <div className="space-y-2 text-sm">
+                  {item.serialNumber && <div><span className="text-text-muted">Serial:</span> <span className="text-text-secondary">{item.serialNumber}</span></div>}
+                  {item.imei && <div><span className="text-text-muted">IMEI:</span> <span className="text-text-secondary">{item.imei}</span></div>}
+                  {item.deviceModel && <div><span className="text-text-muted">Device:</span> <span className="text-text-secondary">{item.deviceModel}</span></div>}
+                  {item.engraving && <div><span className="text-text-muted">Engraving:</span> <span className="text-text-secondary">{item.engraving}</span></div>}
+                  {item.uniqueMarkings && <div><span className="text-text-muted">Markings:</span> <span className="text-text-secondary">{item.uniqueMarkings}</span></div>}
+                  {item.stickers && <div><span className="text-text-muted">Stickers:</span> <span className="text-text-secondary">{item.stickers}</span></div>}
+                </div>
+              </div>
+            )}
+
+            {/* Owner-only: Contact info */}
+            {isOwner && (item.contactName || item.contactEmail || item.contactPhone) && (
+              <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <User className="w-4 h-4 text-text-muted" />
+                  <h2 className="text-sm font-medium text-text">Contact Information (Private)</h2>
+                </div>
+                <div className="space-y-2 text-sm">
+                  {item.contactName && <div className="flex items-center gap-2"><User className="w-3.5 h-3.5 text-text-muted" /><span className="text-text-secondary">{item.contactName}</span></div>}
+                  {item.contactEmail && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-text-muted" /><span className="text-text-secondary">{item.contactEmail}</span></div>}
+                  {item.contactPhone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-text-muted" /><span className="text-text-secondary">{item.contactPhone}</span></div>}
+                </div>
+              </div>
+            )}
+
+            {/* Owner-only: Security info */}
+            {isOwner && item.securityInfo && (item.securityInfo.deviceLocked || item.securityInfo.cardBlocked || item.securityInfo.idReported) && (
+              <div className="mb-6 p-4 bg-warning/5 border border-warning/20 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="w-4 h-4 text-warning" />
+                  <span className="font-medium text-text text-sm">Security Measures Taken</span>
+                </div>
+                <div className="space-y-1 text-sm text-text-secondary">
+                  {item.securityInfo.deviceLocked && <p>Device/account has been locked</p>}
+                  {item.securityInfo.cardBlocked && <p>Card has been blocked</p>}
+                  {item.securityInfo.idReported && <p>ID has been reported</p>}
+                </div>
+              </div>
+            )}
 
             {item.type === 'FOUND' && item.verificationQuestion && (
               <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
@@ -164,10 +262,6 @@ export default function ItemDetails() {
 
             {isOwner ? (
               <div className="flex gap-3">
-                <button onClick={() => navigate(`/items/${id}/edit`)} className="btn-ghost flex items-center gap-2">
-                  <Edit className="w-4 h-4" />
-                  Edit
-                </button>
                 <button onClick={() => setShowDeleteModal(true)} className="btn-danger flex items-center gap-2">
                   <Trash2 className="w-4 h-4" />
                   Delete

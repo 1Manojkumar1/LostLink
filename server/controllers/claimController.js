@@ -146,6 +146,57 @@ exports.getMyClaims = async (req, res) => {
   }
 };
 
+exports.getIncomingClaims = async (req, res) => {
+  try {
+    const myItemIds = await Item.find({ userId: req.user.userId }).select('_id');
+
+    const claims = await Claim.find({ itemId: { $in: myItemIds } })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'itemId',
+        select: 'title description category type location date image status',
+      })
+      .populate('claimantId', 'name email');
+
+    const safeClaims = claims.map((claim) => ({
+      id: claim._id,
+      itemId: claim.itemId
+        ? {
+            id: claim.itemId._id,
+            title: claim.itemId.title,
+            description: claim.itemId.description,
+            category: claim.itemId.category,
+            type: claim.itemId.type,
+            location: claim.itemId.location,
+            date: claim.itemId.date,
+            image: claim.itemId.image,
+            status: claim.itemId.status,
+            userId: claim.itemId.userId,
+          }
+        : null,
+      claimantId: claim.claimantId
+        ? {
+            id: claim.claimantId._id,
+            name: claim.claimantId.name,
+            email: claim.claimantId.email,
+          }
+        : null,
+      status: claim.status,
+      createdAt: claim.createdAt,
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: safeClaims,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch incoming claims',
+    });
+  }
+};
+
 exports.getItemClaims = async (req, res) => {
   try {
     const item = await Item.findById(req.params.itemId);

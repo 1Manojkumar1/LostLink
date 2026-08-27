@@ -1,46 +1,18 @@
-import { CheckCircle2, Clock, XCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, AlertTriangle, HelpCircle, ArrowRight, RotateCcw, Ban } from 'lucide-react';
 
 const statusConfig = {
-  LOST: {
-    bg: 'bg-error/15',
-    text: 'text-error',
-    icon: AlertTriangle,
-  },
-  FOUND: {
-    bg: 'bg-success/15',
-    text: 'text-success',
-    icon: CheckCircle2,
-  },
-  ACTIVE: {
-    bg: 'bg-warning/15',
-    text: 'text-warning',
-    icon: Clock,
-  },
-  CLAIM_PENDING: {
-    bg: 'bg-info/15',
-    text: 'text-info',
-    icon: Clock,
-  },
-  RESOLVED: {
-    bg: 'bg-success/15',
-    text: 'text-success',
-    icon: CheckCircle2,
-  },
-  PENDING: {
-    bg: 'bg-warning/15',
-    text: 'text-warning',
-    icon: Clock,
-  },
-  APPROVED: {
-    bg: 'bg-success/15',
-    text: 'text-success',
-    icon: CheckCircle2,
-  },
-  REJECTED: {
-    bg: 'bg-error/15',
-    text: 'text-error',
-    icon: XCircle,
-  },
+  LOST: { bg: 'bg-error/15', text: 'text-error', icon: AlertTriangle },
+  FOUND: { bg: 'bg-success/15', text: 'text-success', icon: CheckCircle2 },
+  ACTIVE: { bg: 'bg-warning/15', text: 'text-warning', icon: Clock },
+  CLAIM_PENDING: { bg: 'bg-info/15', text: 'text-info', icon: Clock },
+  RESOLVED: { bg: 'bg-success/15', text: 'text-success', icon: CheckCircle2 },
+  POTENTIAL_MATCH: { bg: 'bg-primary/15', text: 'text-primary', icon: HelpCircle },
+  CLAIMED: { bg: 'bg-info/15', text: 'text-info', icon: ArrowRight },
+  RETURNED: { bg: 'bg-success/15', text: 'text-success', icon: RotateCcw },
+  CLOSED: { bg: 'bg-surface-elevated', text: 'text-text-muted', icon: Ban },
+  PENDING: { bg: 'bg-warning/15', text: 'text-warning', icon: Clock },
+  APPROVED: { bg: 'bg-success/15', text: 'text-success', icon: CheckCircle2 },
+  REJECTED: { bg: 'bg-error/15', text: 'text-error', icon: XCircle },
 };
 
 export default function StatusBadge({ status, size = 'sm', showIcon = true, className = '' }) {
@@ -54,7 +26,7 @@ export default function StatusBadge({ status, size = 'sm', showIcon = true, clas
   return (
     <span className={`badge ${config.bg} ${config.text} ${textSize} ${className}`}>
       {showIcon && <Icon className={iconSize} />}
-      {status}
+      {status.replace('_', ' ')}
     </span>
   );
 }

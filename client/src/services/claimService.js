@@ -8,6 +8,10 @@ export const getMyClaims = () => {
   return api.get('/claims/mine');
 };
 
+export const getIncomingClaims = () => {
+  return api.get('/claims/incoming');
+};
+
 export const getItemClaims = (itemId) => {
   return api.get(`/claims/item/${itemId}`);
 };

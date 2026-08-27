@@ -7,7 +7,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - add auth token if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('lostlink_token');
@@ -16,21 +15,24 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor - unwrap data
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    const status = error.response?.status;
     const message = error.response?.data?.message || 'Network error';
-    return Promise.reject({ message, status: error.response?.status });
+
+    if (status === 401) {
+      localStorage.removeItem('lostlink_token');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+
+    return Promise.reject({ message, status });
   }
 );
-
-// Health check
-export const checkHealth = () => api.get('/health');
 
 export default api;
