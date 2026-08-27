@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
@@ -13,27 +14,46 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+const configuredOrigins = (process.env.CLIENT_URL || '')
   .split(',')
-  .map((url) => url.trim());
+  .map((url) => url.trim().replace(/\/$/, ''))
+  .filter(Boolean);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const allow = !origin || allowedOrigins.includes(origin);
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
 
-  if (allow) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  const cleanOrigin = origin.replace(/\/$/, '');
+
+  if (configuredOrigins.includes('*')) return true;
+  if (configuredOrigins.includes(cleanOrigin)) return true;
+
+  if (
+    cleanOrigin === 'https://getitback.vercel.app' ||
+    /\.vercel\.app$/.test(cleanOrigin) ||
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin)
+  ) {
+    return true;
   }
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Max-Age', '86400');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-  next();
-});
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -83,11 +103,18 @@ if (isProduction) {
 
 app.use((err, req, res, next) => {
   const origin = req.headers.origin;
-  const allow = !origin || allowedOrigins.includes(origin);
-  if (allow) {
+  if (isAllowedOrigin(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (err.message && err.message.startsWith('CORS blocked')) {
+    return res.status(403).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
@@ -103,9 +130,10 @@ const start = async () => {
 
   app.listen(PORT, () => {
     console.log(`LostLink server running on port ${PORT}`);
-    console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+    console.log(`Configured origins: ${configuredOrigins.join(', ') || 'default defaults active'}`);
     console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 };
 
 start();
+
