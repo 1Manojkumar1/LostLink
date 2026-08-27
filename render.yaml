@@ -3,8 +3,8 @@ services:
     name: lostlink
     runtime: node
     plan: free
-    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
-    startCommand: cd server && node server.js
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -13,4 +13,5 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL
-        value: https://lostlink-gn8q.onrender.com
+        value: https://getitback.vercel.app,https://lostlink-se26.onrender.com
+        sync: false
