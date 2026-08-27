@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -11,6 +12,7 @@ const globalErrorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
 
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
@@ -44,21 +46,30 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'LostLink API',
-    version: '1.0.0',
-    health: '/api/health',
-  });
-});
+if (isProduction) {
+  const clientDist = path.join(__dirname, '..', 'client', 'dist');
+  app.use(express.static(clientDist));
 
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found',
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
-});
+} else {
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      message: 'LostLink API',
+      version: '1.0.0',
+      health: '/api/health',
+    });
+  });
+
+  app.use((req, res) => {
+    res.status(404).json({
+      success: false,
+      message: 'Route not found',
+    });
+  });
+}
 
 app.use(globalErrorHandler);
 
