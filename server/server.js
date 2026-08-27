@@ -19,18 +19,22 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes(origin)) {
+  const allow = !origin || allowedOrigins.includes(origin);
+
+  if (allow) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400');
 
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
+    return res.status(204).end();
   }
   next();
 });
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -77,7 +81,18 @@ if (isProduction) {
   });
 }
 
-app.use(globalErrorHandler);
+app.use((err, req, res, next) => {
+  const origin = req.headers.origin;
+  const allow = !origin || allowedOrigins.includes(origin);
+  if (allow) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+  });
+});
 
 const start = async () => {
   const dbConnected = await connectDB();
@@ -88,6 +103,7 @@ const start = async () => {
 
   app.listen(PORT, () => {
     console.log(`LostLink server running on port ${PORT}`);
+    console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
     console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 };
