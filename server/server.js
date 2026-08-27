@@ -50,7 +50,10 @@ if (isProduction) {
   const clientDist = path.join(__dirname, '..', 'client', 'dist');
   app.use(express.static(clientDist));
 
-  app.get('*', (req, res) => {
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 } else {
