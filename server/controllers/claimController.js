@@ -124,7 +124,7 @@ exports.getMyClaims = async (req, res) => {
       .populate({
         path: 'itemId',
         select: 'title description category type location date image status',
-        populate: { path: 'userId', select: 'name email' },
+        populate: { path: 'userId', select: 'name email phone' },
       });
 
     const safeClaims = claims.map((claim) => ({
@@ -169,7 +169,7 @@ exports.getIncomingClaims = async (req, res) => {
         path: 'itemId',
         select: 'title description category type location date image status',
       })
-      .populate('claimantId', 'name email');
+      .populate('claimantId', 'name email phone');
 
     const safeClaims = claims.map((claim) => ({
       id: claim._id,
@@ -192,6 +192,7 @@ exports.getIncomingClaims = async (req, res) => {
             id: claim.claimantId._id,
             name: claim.claimantId.name,
             email: claim.claimantId.email,
+            phone: claim.claimantId.phone,
           }
         : null,
       status: claim.status,
@@ -230,7 +231,7 @@ exports.getItemClaims = async (req, res) => {
 
     const claims = await Claim.find({ itemId: req.params.itemId })
       .sort({ createdAt: -1 })
-      .populate('claimantId', 'name email');
+      .populate('claimantId', 'name email phone');
 
     const safeClaims = claims.map((claim) => ({
       id: claim._id,
@@ -240,6 +241,7 @@ exports.getItemClaims = async (req, res) => {
             id: claim.claimantId._id,
             name: claim.claimantId.name,
             email: claim.claimantId.email,
+            phone: claim.claimantId.phone,
           }
         : null,
       status: claim.status,

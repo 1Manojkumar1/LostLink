@@ -8,6 +8,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name, email, password);
+      await register(name, email, password, phone);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -95,6 +96,22 @@ export default function Register() {
                 disabled={loading}
                 autoComplete="email"
                 required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-text-secondary mb-1.5">
+                Phone Number (Optional - for WhatsApp)
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                className="input"
+                placeholder="+1234567890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={loading}
+                autoComplete="tel"
               />
             </div>
 

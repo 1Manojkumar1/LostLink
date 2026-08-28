@@ -96,9 +96,14 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
             </p>
           </div>
         ) : (
-          <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-            <p className="text-sm font-medium text-primary mb-1">Verification Question</p>
-            <p className="text-sm text-text">{item.verificationQuestion || 'What distinguishes this item?'}</p>
+          <div className="mb-4 p-3.5 bg-primary/5 rounded-lg border border-primary/20 space-y-1.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Verification Question</p>
+            <p className="text-sm font-medium text-text">{item.verificationQuestion || 'What distinguishes this item?'}</p>
+            {item.verificationHint && (
+              <p className="text-xs text-text-secondary pt-1 border-t border-primary/10 flex items-center gap-1.5">
+                <span className="text-primary font-bold">💡 Hint:</span> {item.verificationHint}
+              </p>
+            )}
           </div>
         )}
 

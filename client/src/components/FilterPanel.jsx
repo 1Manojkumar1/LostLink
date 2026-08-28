@@ -6,6 +6,16 @@ export default function FilterPanel({ filters, onFilterChange, onClearFilters })
   const [expanded, setExpanded] = useState(false);
   const hasActiveFilters = filters.type || filters.category || filters.location || filters.date || filters.status;
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const presets = [
+    { label: '🕒 Today', apply: { ...filters, date: filters.date === todayStr ? '' : todayStr }, active: filters.date === todayStr },
+    { label: '⚡ Active Only', apply: { ...filters, status: filters.status === 'ACTIVE' ? '' : 'ACTIVE' }, active: filters.status === 'ACTIVE' },
+    { label: '💻 Electronics', apply: { ...filters, category: filters.category === 'Electronics' ? '' : 'Electronics' }, active: filters.category === 'Electronics' },
+    { label: '🪪 IDs & Cards', apply: { ...filters, category: filters.category === 'Documents/IDs' ? '' : 'Documents/IDs' }, active: filters.category === 'Documents/IDs' },
+    { label: '🎒 Bags/Wallets', apply: { ...filters, category: filters.category === 'Wallet/Purse' ? '' : 'Wallet/Purse' }, active: filters.category === 'Wallet/Purse' },
+  ];
+
   return (
     <div>
       {/* Mobile toggle */}
@@ -36,8 +46,27 @@ export default function FilterPanel({ filters, onFilterChange, onClearFilters })
       {/* Desktop always visible, mobile collapsible */}
       <div
         id="filter-panel"
-        className={`${expanded ? 'block' : 'hidden'} md:block`}
+        className={`${expanded ? 'block' : 'hidden'} md:block space-y-3`}
       >
+        {/* Quick Presets */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <span className="text-text-muted font-medium mr-1 flex-shrink-0">Quick Presets:</span>
+          {presets.map((preset, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onFilterChange(preset.apply)}
+              className={`px-2.5 py-1 rounded-full border transition-all flex-shrink-0 font-medium ${
+                preset.active
+                  ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20'
+                  : 'bg-surface-elevated text-text-secondary border-border hover:border-text-muted'
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-1.5">
             {[

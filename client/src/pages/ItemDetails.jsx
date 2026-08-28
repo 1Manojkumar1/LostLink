@@ -12,6 +12,7 @@ import { LOCATION_TYPES } from '../utils/constants';
 import MatchCard from '../components/MatchCard';
 import ClaimModal from '../components/ClaimModal';
 import StatusBadge from '../components/StatusBadge';
+import RecoveryTimeline from '../components/RecoveryTimeline';
 import Navbar from '../components/Navbar';
 
 export default function ItemDetails() {
@@ -255,6 +256,10 @@ export default function ItemDetails() {
                 </p>
               </div>
             )}
+
+            <div className="mb-6">
+              <RecoveryTimeline item={item} />
+            </div>
 
             <div className="mb-6 text-sm text-text-muted">
               Reported by {item.userId?.name || 'Unknown'} on {formatDateLong(item.createdAt)}

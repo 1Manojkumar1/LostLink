@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, MapPin, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Package, MapPin, Loader2, CheckCircle2, XCircle, MessageCircle, Mail } from 'lucide-react';
 import { approveClaim, rejectClaim } from '../services/claimService';
 import { useState } from 'react';
 import { formatDate } from '../utils/formatDate';
@@ -44,6 +44,9 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
     );
   }
 
+  const contactPerson = showActions ? claim.claimantId : claim.itemId.userId;
+
+
   return (
     <div className="card">
       <div className="flex items-start justify-between mb-3">
@@ -86,10 +89,32 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
             <CheckCircle2 className="w-4 h-4" />
             <span>Claim Approved — Campus Safe Handover Active</span>
           </div>
-          {claim.claimantId && (
-            <p className="text-xs text-text-secondary">
-              Contact: <strong className="text-text">{claim.claimantId.name}</strong> ({claim.claimantId.email})
-            </p>
+          {contactPerson && (
+            <div className="text-xs text-text-secondary">
+              <p className="mb-2">
+                Contact: <strong className="text-text">{contactPerson.name}</strong>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {contactPerson.phone && (
+                  <a
+                    href={`https://wa.me/${contactPerson.phone.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] text-white rounded-md font-medium hover:bg-[#20bd5a] transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    WhatsApp
+                  </a>
+                )}
+                <a
+                  href={`mailto:${contactPerson.email}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-elevated border border-border text-text rounded-md font-medium hover:bg-bg transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  Email
+                </a>
+              </div>
+            </div>
           )}
           <div className="pt-1 border-t border-success/20">
             <p className="text-[11px] font-semibold text-text-muted mb-1 uppercase tracking-wider">

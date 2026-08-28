@@ -237,6 +237,11 @@ const ItemSchema = new mongoose.Schema(
       trim: true,
       maxlength: [200, 'Verification question cannot exceed 200 characters'],
     },
+    verificationHint: {
+      type: String,
+      trim: true,
+      maxlength: [200, 'Verification hint cannot exceed 200 characters'],
+    },
     verificationAnswer: {
       type: String,
       trim: true,

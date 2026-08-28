@@ -16,7 +16,7 @@ const NEW_FIELDS = [
 
 exports.createItem = async (req, res) => {
   try {
-    const { title, description, category, type, location, date, image, verificationQuestion, verificationAnswer } = req.body;
+    const { title, description, category, type, location, date, image, verificationQuestion, verificationAnswer, verificationHint } = req.body;
 
     if (!title || !description || !category || !type || !location || !date) {
       return res.status(400).json({
@@ -55,6 +55,9 @@ exports.createItem = async (req, res) => {
     if (type === 'FOUND') {
       itemData.verificationQuestion = verificationQuestion;
       itemData.verificationAnswer = verificationAnswer;
+      if (verificationHint) {
+        itemData.verificationHint = verificationHint;
+      }
     }
 
     NEW_FIELDS.forEach((field) => {

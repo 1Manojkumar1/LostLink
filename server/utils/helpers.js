@@ -14,6 +14,7 @@ function serializeItem(item, { isOwner = false } = {}) {
     image: item.image,
     status: item.status,
     verificationQuestion: item.verificationQuestion,
+    verificationHint: item.verificationHint || null,
     userId: item.userId,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,

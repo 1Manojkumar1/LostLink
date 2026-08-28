@@ -8,6 +8,7 @@ import {
 import { createItem } from '../services/itemService';
 import { CATEGORIES, LOCATION_TYPES, CONTACT_METHODS, SECURITY_CATEGORIES, REPORT_STEPS } from '../utils/constants';
 import { useAuth } from '../context/AuthContext';
+import { compressImage } from '../utils/imageCompressor';
 import Navbar from '../components/Navbar';
 
 const INITIAL_FORM = {
@@ -48,21 +49,28 @@ const INITIAL_FORM = {
   notifications: { inApp: true, email: true, sms: false },
   verificationQuestion: '',
   verificationAnswer: '',
+  verificationHint: '',
 };
 
 function FileUpload({ files, onFilesChange, accept = 'image/*', label, icon: Icon = Camera }) {
   const inputRef = useRef(null);
 
-  const handleFileSelect = (e) => {
-    const newFiles = Array.from(e.target.files);
-    newFiles.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        onFilesChange([...files, { name: file.name, size: file.size, type: file.type, dataUrl: ev.target.result }]);
-      };
-      reader.readAsDataURL(file);
-    });
+  const handleFileSelect = async (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    for (const file of selectedFiles) {
+      if (file.size > 15 * 1024 * 1024) continue; // Skip files > 15MB
+      try {
+        const compressedDataUrl = await compressImage(file);
+        onFilesChange([...files, {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          dataUrl: compressedDataUrl,
+        }]);
+      } catch (err) {
+        console.error('Image compression error:', err);
+      }
+    }
     e.target.value = '';
   };
 
@@ -250,6 +258,9 @@ export default function ReportItem() {
       if (form.type === 'FOUND') {
         itemData.verificationQuestion = form.verificationQuestion;
         itemData.verificationAnswer = form.verificationAnswer;
+        if (form.verificationHint) {
+          itemData.verificationHint = form.verificationHint;
+        }
       }
 
       if (form.photos.length > 0) {
@@ -572,6 +583,10 @@ export default function ReportItem() {
                     <input type="text" className={`input ${errors.verificationAnswer ? 'input-error' : ''}`} placeholder="e.g., Blue sticker" value={form.verificationAnswer || ''} onChange={(e) => setField('verificationAnswer', e.target.value)} />
                     {errors.verificationAnswer && <p className="text-xs text-error mt-1">{errors.verificationAnswer}</p>}
                     <p className="text-xs text-text-muted mt-1">This answer is kept private and never shown publicly.</p>
+                  </FormField>
+
+                  <FormField label="Verification Hint (Optional)" hint="Give genuine owners a clue to remember exact details (e.g., 'What color / animal?')">
+                    <input type="text" className="input" placeholder="e.g., Mention the color or shape" value={form.verificationHint || ''} onChange={(e) => setField('verificationHint', e.target.value)} maxLength={200} />
                   </FormField>
                 </div>
               ) : (
