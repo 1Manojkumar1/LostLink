@@ -136,7 +136,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <Link to="/claims" className="btn-primary text-sm flex items-center gap-1.5">
+              <Link to="/claims?tab=received" className="btn-primary text-sm flex items-center gap-1.5">
                 Review Claims
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>

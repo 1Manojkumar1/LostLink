@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Shield, Loader2, Package, CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
 import { getMyClaims, getIncomingClaims } from '../services/claimService';
 import ClaimCard from '../components/ClaimCard';
 import Navbar from '../components/Navbar';
 
 export default function Claims() {
-  const [activeTab, setActiveTab] = useState('my-claims');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('tab') === 'received' ? 'received' : 'my-claims';
+  });
   const [myClaims, setMyClaims] = useState([]);
   const [itemClaims, setItemClaims] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +41,16 @@ export default function Claims() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'received') {
+      setActiveTab('received');
+    } else if (tabParam === 'my-claims') {
+      setActiveTab('my-claims');
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (activeTab === 'my-claims') {

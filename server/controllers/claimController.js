@@ -165,7 +165,7 @@ exports.getMyClaims = async (req, res) => {
 
 exports.getIncomingClaims = async (req, res) => {
   try {
-    const myItemIds = await Item.find({ userId: req.user.userId }).select('_id');
+    const myItemIds = await Item.find({ userId: req.user.userId }).distinct('_id');
 
     const claims = await Claim.find({ itemId: { $in: myItemIds } })
       .sort({ createdAt: -1 })
