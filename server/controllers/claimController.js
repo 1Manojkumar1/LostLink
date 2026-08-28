@@ -1,14 +1,32 @@
 const Claim = require('../models/Claim');
 const Item = require('../models/Item');
 
+const isAnswerValid = (submitted, expected) => {
+  if (!submitted || !expected) return false;
+  const cleanSub = submitted.trim().toLowerCase().replace(/[^\w\s]/g, '');
+  const cleanExp = expected.trim().toLowerCase().replace(/[^\w\s]/g, '');
+
+  if (cleanSub === cleanExp) return true;
+  if (cleanExp.includes(cleanSub) || cleanSub.includes(cleanExp)) return true;
+
+  const subTokens = cleanSub.split(' ').filter((t) => t.length > 1);
+  const expTokens = cleanExp.split(' ').filter((t) => t.length > 1);
+
+  if (subTokens.length === 0 || expTokens.length === 0) return false;
+
+  const matches = subTokens.filter((t) => expTokens.some((e) => e.includes(t) || t.includes(e)));
+  const matchRatio = matches.length / subTokens.length;
+  return matchRatio >= 0.6;
+};
+
 exports.createClaim = async (req, res) => {
   try {
     const { itemId, answer } = req.body;
 
-    if (!itemId || !answer) {
+    if (!itemId || !answer || !answer.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Item ID and verification answer are required',
+        message: 'Item ID and verification answer or handover message are required',
       });
     }
 
@@ -18,13 +36,6 @@ exports.createClaim = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Item not found',
-      });
-    }
-
-    if (item.type !== 'FOUND') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only FOUND items can be claimed',
       });
     }
 
@@ -50,24 +61,26 @@ exports.createClaim = async (req, res) => {
     if (existingClaim) {
       return res.status(400).json({
         success: false,
-        message: 'You have already claimed this item',
+        message: 'You have already submitted a claim or handover request for this item',
       });
     }
 
-    if (!item.verificationAnswer) {
-      return res.status(400).json({
-        success: false,
-        message: 'This item does not have a verification question set',
-      });
-    }
+    if (item.type === 'FOUND') {
+      if (!item.verificationAnswer) {
+        return res.status(400).json({
+          success: false,
+          message: 'This item does not have a verification question set',
+        });
+      }
 
-    const isCorrect = answer.trim().toLowerCase() === item.verificationAnswer.trim().toLowerCase();
+      const isCorrect = isAnswerValid(answer, item.verificationAnswer);
 
-    if (!isCorrect) {
-      return res.status(400).json({
-        success: false,
-        message: 'Incorrect verification answer',
-      });
+      if (!isCorrect) {
+        return res.status(400).json({
+          success: false,
+          message: 'Incorrect verification answer. Please double check and try again.',
+        });
+      }
     }
 
     const claim = await Claim.create({

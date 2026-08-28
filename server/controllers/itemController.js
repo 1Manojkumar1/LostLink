@@ -69,9 +69,20 @@ exports.createItem = async (req, res) => {
 
     const item = await Item.create(itemData);
 
+    let autoMatches = [];
+    try {
+      const matchResult = await findMatches(item._id.toString());
+      if (matchResult && matchResult.matches) {
+        autoMatches = matchResult.matches;
+      }
+    } catch (matchErr) {
+      console.error('Auto-matching error on item create:', matchErr);
+    }
+
     res.status(201).json({
       success: true,
       data: serializeItem(item, { isOwner: true }),
+      autoMatches,
     });
   } catch (error) {
     if (error.name === 'ValidationError') {

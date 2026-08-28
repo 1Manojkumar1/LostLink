@@ -218,6 +218,8 @@ export default function ReportItem() {
     window.scrollTo(0, 0);
   };
 
+  const [autoMatches, setAutoMatches] = useState([]);
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -260,6 +262,9 @@ export default function ReportItem() {
 
       const res = await createItem(itemData);
       setCreatedItemId(res.data.id);
+      if (res.autoMatches && res.autoMatches.length > 0) {
+        setAutoMatches(res.autoMatches);
+      }
       setSuccess(true);
     } catch (err) {
       setErrors({ submit: err.message || 'Failed to create report' });
@@ -272,17 +277,62 @@ export default function ReportItem() {
     return (
       <div className="min-h-screen bg-bg">
         <Navbar />
-        <div className="flex items-center justify-center px-6" style={{ minHeight: 'calc(100vh - 56px)' }}>
-          <div className="card max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="flex flex-col items-center justify-center px-6 py-12" style={{ minHeight: 'calc(100vh - 56px)' }}>
+          <div className="card max-w-lg w-full text-center space-y-6">
+            <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8 text-success" />
             </div>
-            <h2 className="text-xl font-semibold text-text mb-2">Report Submitted</h2>
-            <p className="text-text-secondary mb-2">
-              Your {form.type.toLowerCase()} item report has been created.
-            </p>
-            <p className="text-xs text-text-muted mb-6 font-mono">Reference: {createdItemId}</p>
-            <div className="flex gap-3 justify-center">
+            <div>
+              <h2 className="text-xl font-semibold text-text mb-1">Report Submitted Successfully</h2>
+              <p className="text-sm text-text-secondary">
+                Your {form.type.toLowerCase()} item report is now active on LostLink.
+              </p>
+              <p className="text-xs text-text-muted mt-1 font-mono">Reference ID: {createdItemId}</p>
+            </div>
+
+            {autoMatches.length > 0 && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl text-left space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary text-white animate-pulse">
+                    ⚡ Instant Match Found!
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    Smart matching detected a potential match
+                  </span>
+                </div>
+
+                {autoMatches.slice(0, 2).map((m, idx) => (
+                  <div key={idx} className="p-3 bg-surface rounded-lg border border-border flex items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm text-text">{m.item.title}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-success/15 text-success">
+                          {m.score}% Match
+                        </span>
+                      </div>
+                      <p className="text-xs text-text-muted">{m.item.location} • {m.item.date}</p>
+                      {m.reasons && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {m.reasons.map((r, ri) => (
+                            <span key={ri} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-text-secondary">
+                              ✓ {r}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => navigate(`/items/${m.item.id}`)}
+                      className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap"
+                    >
+                      View & Claim
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-3 justify-center pt-2">
               <button onClick={() => navigate(`/items/${createdItemId}`)} className="btn-primary">View Report</button>
               <button onClick={() => navigate('/dashboard')} className="btn-ghost">Dashboard</button>
             </div>

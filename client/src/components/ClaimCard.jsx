@@ -80,7 +80,31 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      {claim.status === 'APPROVED' && (
+        <div className="mt-3 p-3.5 bg-success/10 border border-success/20 rounded-xl space-y-2">
+          <div className="flex items-center gap-2 text-success font-medium text-xs">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Claim Approved — Campus Safe Handover Active</span>
+          </div>
+          {claim.claimantId && (
+            <p className="text-xs text-text-secondary">
+              Contact: <strong className="text-text">{claim.claimantId.name}</strong> ({claim.claimantId.email})
+            </p>
+          )}
+          <div className="pt-1 border-t border-success/20">
+            <p className="text-[11px] font-semibold text-text-muted mb-1 uppercase tracking-wider">
+              Recommended Campus Safe Pickup Spots:
+            </p>
+            <ul className="text-xs text-text-secondary space-y-0.5 list-disc list-inside">
+              <li>Main Library Entrance Help Desk</li>
+              <li>Campus Security Gate 1 Security Booth</li>
+              <li>Student Union / Affairs Center</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-3">
         <span className="text-xs text-text-muted">{formatDate(claim.createdAt)}</span>
 
         {showActions && claim.status === 'PENDING' && (

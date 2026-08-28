@@ -45,6 +45,8 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
     }
   };
 
+  const isLostItem = item.type === 'LOST';
+
   if (success) {
     return (
       <div className="modal-overlay">
@@ -52,9 +54,13 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
           <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8 text-success" />
           </div>
-          <h3 className="text-lg font-semibold text-text mb-2">Claim Submitted</h3>
+          <h3 className="text-lg font-semibold text-text mb-2">
+            {isLostItem ? 'Handover Notice Sent' : 'Claim Submitted'}
+          </h3>
           <p className="text-sm text-text-secondary">
-            Your claim has been submitted and is awaiting approval from the finder.
+            {isLostItem
+              ? 'The owner has been notified that you found their item. They will review your notice and coordinate handover.'
+              : 'Your claim has been submitted and is awaiting approval from the finder.'}
           </p>
         </div>
       </div>
@@ -67,7 +73,9 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            <h3 id="claim-title" className="text-lg font-semibold text-text">Claim Item</h3>
+            <h3 id="claim-title" className="text-lg font-semibold text-text">
+              {isLostItem ? 'I Found This Item!' : 'Claim Item'}
+            </h3>
           </div>
           <button onClick={onClose} className="p-1 rounded-md text-text-muted hover:text-text hover:bg-surface-elevated transition-colors" aria-label="Close">
             <X className="w-5 h-5" />
@@ -80,10 +88,19 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
           <p className="text-xs text-text-muted mt-1">{item.category} · {item.location}</p>
         </div>
 
-        <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-          <p className="text-sm font-medium text-primary mb-1">Verification Question</p>
-          <p className="text-sm text-text">{item.verificationQuestion}</p>
-        </div>
+        {isLostItem ? (
+          <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+            <p className="text-sm font-medium text-primary mb-1">Handover Note</p>
+            <p className="text-xs text-text-secondary">
+              Let the owner know where you found their item or how to get in touch for returning it.
+            </p>
+          </div>
+        ) : (
+          <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+            <p className="text-sm font-medium text-primary mb-1">Verification Question</p>
+            <p className="text-sm text-text">{item.verificationQuestion || 'What distinguishes this item?'}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           {error && (
@@ -95,7 +112,7 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
 
           <div className="mb-4">
             <label htmlFor="claim-answer" className="block text-sm font-medium text-text-secondary mb-1.5">
-              Your Answer
+              {isLostItem ? 'Details / Location Found' : 'Your Answer'}
             </label>
             <input
               id="claim-answer"
@@ -103,7 +120,7 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               className="input"
-              placeholder="Enter the verification answer"
+              placeholder={isLostItem ? 'e.g., I found your wallet at the library desk' : 'Enter the verification answer'}
               disabled={loading}
               autoFocus
             />
@@ -113,7 +130,7 @@ export default function ClaimModal({ item, onClose, onSuccess }) {
             <button type="button" onClick={onClose} className="btn-ghost" disabled={loading}>Cancel</button>
             <button type="submit" className="btn-primary flex items-center gap-2" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-              Submit Claim
+              {isLostItem ? 'Send Handover Notice' : 'Submit Claim'}
             </button>
           </div>
         </form>

@@ -268,20 +268,20 @@ export default function ItemDetails() {
                 </button>
               </div>
             ) : (
-              item.type === 'FOUND' &&
               item.status === 'ACTIVE' &&
-              user &&
-              item.verificationQuestion && (
+              user && (
                 <div>
                   {claimSuccess ? (
                     <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/20 rounded-lg">
                       <CheckCircle2 className="w-5 h-5 text-success" />
-                      <span className="font-medium text-success">Claim submitted successfully</span>
+                      <span className="font-medium text-success">
+                        {item.type === 'LOST' ? 'Handover notice submitted successfully' : 'Claim submitted successfully'}
+                      </span>
                     </div>
                   ) : (
                     <button onClick={() => setShowClaimModal(true)} className="btn-primary flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Claim This Item
+                      {item.type === 'LOST' ? 'I Found Your Item!' : 'Claim This Item'}
                     </button>
                   )}
                 </div>
