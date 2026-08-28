@@ -23,3 +23,11 @@ export const approveClaim = (claimId) => {
 export const rejectClaim = (claimId) => {
   return api.patch(`/claims/${claimId}/reject`);
 };
+
+export const completeHandover = (claimId, code = '') => {
+  return api.patch(`/claims/${claimId}/complete-handover`, { code });
+};
+
+export const sendThankYou = (claimId, { note, badge }) => {
+  return api.post(`/claims/${claimId}/thank-you`, { note, badge });
+};

@@ -34,17 +34,17 @@ export default function RecoveryTimeline({ item }) {
     },
     {
       id: 4,
-      title: 'Safe Campus Pickup',
+      title: 'Safe Pickup & Handover Passcode',
       description: isResolved
-        ? 'Verified and contact details exchanged'
-        : 'Official campus meeting spot assigned upon approval',
+        ? 'Passcode verified at campus pickup spot'
+        : 'Meet at official campus safe spot & verify 4-digit handover passcode',
       icon: HandHeart,
       status: isResolved ? 'completed' : 'pending',
     },
     {
       id: 5,
-      title: 'Recovered & Closed',
-      description: isResolved ? 'Item successfully returned!' : 'Marked resolved upon successful handover',
+      title: 'Reunited & Community Gratitude 🎉',
+      description: isResolved ? 'Item successfully returned! Contact info sealed.' : 'Marked resolved upon successful exchange',
       icon: CheckCircle2,
       status: isResolved ? 'completed' : 'pending',
     },

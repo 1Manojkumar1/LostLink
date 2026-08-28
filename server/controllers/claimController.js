@@ -144,6 +144,10 @@ exports.getMyClaims = async (req, res) => {
           }
         : null,
       status: claim.status,
+      handoverCode: claim.handoverCode,
+      handoverCompletedAt: claim.handoverCompletedAt,
+      thankYouNote: claim.thankYouNote,
+      karmaBadge: claim.karmaBadge,
       createdAt: claim.createdAt,
     }));
 
@@ -196,6 +200,10 @@ exports.getIncomingClaims = async (req, res) => {
           }
         : null,
       status: claim.status,
+      handoverCode: claim.handoverCode,
+      handoverCompletedAt: claim.handoverCompletedAt,
+      thankYouNote: claim.thankYouNote,
+      karmaBadge: claim.karmaBadge,
       createdAt: claim.createdAt,
     }));
 
@@ -245,6 +253,10 @@ exports.getItemClaims = async (req, res) => {
           }
         : null,
       status: claim.status,
+      handoverCode: claim.handoverCode,
+      handoverCompletedAt: claim.handoverCompletedAt,
+      thankYouNote: claim.thankYouNote,
+      karmaBadge: claim.karmaBadge,
       createdAt: claim.createdAt,
     }));
 
@@ -299,6 +311,7 @@ exports.approveClaim = async (req, res) => {
     }
 
     claim.status = 'APPROVED';
+    claim.handoverCode = Math.floor(1000 + Math.random() * 9000).toString();
     await claim.save();
 
     await Item.findByIdAndUpdate(claim.itemId._id, { status: 'RESOLVED' });
@@ -314,6 +327,7 @@ exports.approveClaim = async (req, res) => {
         id: claim._id,
         itemId: claim.itemId._id,
         status: claim.status,
+        handoverCode: claim.handoverCode,
         createdAt: claim.createdAt,
       },
     });
@@ -395,5 +409,80 @@ exports.rejectClaim = async (req, res) => {
       success: false,
       message: 'Failed to reject claim',
     });
+  }
+};
+
+exports.completeHandover = async (req, res) => {
+  try {
+    const { code } = req.body;
+    const claim = await Claim.findById(req.params.id).populate('itemId');
+
+    if (!claim) {
+      return res.status(404).json({ success: false, message: 'Claim not found' });
+    }
+
+    const isOwner = claim.itemId && claim.itemId.userId.toString() === req.user.userId;
+    const isClaimant = claim.claimantId.toString() === req.user.userId;
+
+    if (!isOwner && !isClaimant) {
+      return res.status(403).json({ success: false, message: 'Not authorized to complete this handover' });
+    }
+
+    if (claim.status !== 'APPROVED') {
+      return res.status(400).json({ success: false, message: 'Only APPROVED claims can be marked as handed over' });
+    }
+
+    if (code && claim.handoverCode && code.trim() !== claim.handoverCode) {
+      return res.status(400).json({ success: false, message: 'Invalid 4-digit handover passcode' });
+    }
+
+    claim.status = 'HANDED_OVER';
+    claim.handoverCompletedAt = new Date();
+    await claim.save();
+
+    await Item.findByIdAndUpdate(claim.itemId._id, { status: 'RESOLVED' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Handover successfully completed! Item marked as reunited.',
+      data: {
+        id: claim._id,
+        status: claim.status,
+        handoverCompletedAt: claim.handoverCompletedAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to complete handover' });
+  }
+};
+
+exports.sendThankYou = async (req, res) => {
+  try {
+    const { note, badge } = req.body;
+    const claim = await Claim.findById(req.params.id);
+
+    if (!claim) {
+      return res.status(404).json({ success: false, message: 'Claim not found' });
+    }
+
+    if (claim.claimantId.toString() !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only the claimant can send a thank you note' });
+    }
+
+    if (note) claim.thankYouNote = note.trim();
+    if (badge) claim.karmaBadge = badge;
+    await claim.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Gratitude sent to finder!',
+      data: {
+        id: claim._id,
+        thankYouNote: claim.thankYouNote,
+        karmaBadge: claim.karmaBadge,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to send thank you note' });
   }
 };

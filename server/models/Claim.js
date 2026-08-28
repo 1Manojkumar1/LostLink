@@ -19,8 +19,25 @@ const ClaimSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'APPROVED', 'REJECTED'],
+      enum: ['PENDING', 'APPROVED', 'HANDED_OVER', 'REJECTED'],
       default: 'PENDING',
+    },
+    handoverCode: {
+      type: String,
+      trim: true,
+    },
+    handoverCompletedAt: {
+      type: Date,
+    },
+    thankYouNote: {
+      type: String,
+      trim: true,
+      maxlength: [300, 'Thank you note cannot exceed 300 characters'],
+    },
+    karmaBadge: {
+      type: String,
+      trim: true,
+      default: 'Campus Good Samaritan',
     },
   },
   {
