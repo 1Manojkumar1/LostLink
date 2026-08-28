@@ -159,57 +159,49 @@ export default function ClaimCard({ claim, onUpdate, showActions = false }) {
 
           {/* 4-Digit Handover Passcode Box */}
           <div className="p-3 bg-surface rounded-lg border border-border/80 space-y-2">
-            {!showActions ? (
-              // Claimant View: Shows the Passcode
+            {(claim.itemId?.type === 'LOST' ? showActions : !showActions) ? (
+              // Owner of the item: Shows the Passcode
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-text mb-1">
                   <KeyRound className="w-3.5 h-3.5 text-primary" />
-                  <span>Your Pickup Passcode</span>
+                  <span>Your Handover Verification OTP</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <div className="px-3 py-1.5 bg-primary/10 border border-primary/30 rounded font-mono font-bold text-base text-primary tracking-widest">
-                    {claim.handoverCode || '4829'}
+                  <div className="px-3.5 py-1.5 bg-primary/10 border border-primary/30 rounded font-mono font-bold text-lg text-primary tracking-widest">
+                    {claim.handoverCode || '----'}
                   </div>
                   <p className="text-[11px] text-text-muted flex-1">
-                    Show this code to the finder when you receive the item.
+                    Provide this 4-digit OTP to the other person when you meet in person to confirm exchange and mark the item resolved.
                   </p>
-                </div>
-                <div className="mt-2 pt-2 border-t border-border flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleCompleteHandover()}
-                    disabled={loading}
-                    className="text-xs text-success hover:underline font-medium flex items-center gap-1"
-                  >
-                    {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                    I have received my item
-                  </button>
                 </div>
               </div>
             ) : (
-              // Finder View: Input Code or Confirm Handover
+              // Finder: Input OTP to Confirm Handover
               <div>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-text mb-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-text mb-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-success" />
-                  <span>Verify Handover at Meetup</span>
+                  <span>Enter 4-Digit Handover OTP</span>
                 </div>
+                <p className="text-[11px] text-text-secondary mb-2">
+                  Ask the owner for their 4-digit OTP when exchanging the item to verify and resolve the report.
+                </p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     maxLength={4}
                     value={handoverInputCode}
                     onChange={(e) => setHandoverInputCode(e.target.value)}
-                    placeholder="Enter 4-digit code"
+                    placeholder="4-digit OTP"
                     className="input text-xs py-1.5 px-2.5 w-36 font-mono text-center tracking-widest"
                   />
                   <button
                     type="button"
                     onClick={() => handleCompleteHandover(handoverInputCode)}
-                    disabled={loading}
-                    className="btn-primary text-xs py-1.5 px-3 whitespace-nowrap flex items-center gap-1"
+                    disabled={loading || !handoverInputCode.trim()}
+                    className="btn-primary text-xs py-1.5 px-3 whitespace-nowrap flex items-center gap-1 disabled:opacity-50"
                   >
                     {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                    Confirm Exchange
+                    Verify OTP & Resolve
                   </button>
                 </div>
               </div>

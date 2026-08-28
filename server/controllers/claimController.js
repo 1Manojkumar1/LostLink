@@ -314,7 +314,8 @@ exports.approveClaim = async (req, res) => {
     claim.handoverCode = Math.floor(1000 + Math.random() * 9000).toString();
     await claim.save();
 
-    await Item.findByIdAndUpdate(claim.itemId._id, { status: 'RESOLVED' });
+    // Ensure item status remains in CLAIM_PENDING until OTP verification is completed at meetup
+    await Item.findByIdAndUpdate(claim.itemId._id, { status: 'CLAIM_PENDING' });
 
     await Claim.updateMany(
       { itemId: claim.itemId._id, _id: { $ne: claim._id }, status: 'PENDING' },
@@ -432,8 +433,10 @@ exports.completeHandover = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only APPROVED claims can be marked as handed over' });
     }
 
-    if (code && claim.handoverCode && code.trim() !== claim.handoverCode) {
-      return res.status(400).json({ success: false, message: 'Invalid 4-digit handover passcode' });
+    if (claim.handoverCode) {
+      if (!code || code.toString().trim() !== claim.handoverCode.toString().trim()) {
+        return res.status(400).json({ success: false, message: 'Invalid or missing 4-digit handover passcode / OTP' });
+      }
     }
 
     claim.status = 'HANDED_OVER';
