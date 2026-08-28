@@ -34,3 +34,12 @@ coverage/
 
 # Misc
 *.log
+
+# Agent/project docs (keep local only)
+AGENTS.md
+ARCHITECTURE.md
+DESIGN.md
+PRD.md
+STITCH_PROMPT.md
+IMPLEMENTATION_PROMPT.md
+docs/
