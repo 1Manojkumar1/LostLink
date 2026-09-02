@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LostLink — Project Documentation</title>
+<style>
+  @page { margin: 20mm 18mm; size: A4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; line-height: 1.6; font-size: 11pt; }
+  h1 { font-size: 28pt; color: #4f46e5; margin-bottom: 4px; }
+  h2 { font-size: 16pt; color: #4f46e5; margin-top: 28px; margin-bottom: 8px; border-bottom: 2px solid #e5e7eb; padding-bottom: 4px; }
+  h3 { font-size: 13pt; color: #374151; margin-top: 18px; margin-bottom: 6px; }
+  p { margin-bottom: 8px; }
+  .subtitle { font-size: 14pt; color: #6b7280; margin-bottom: 20px; }
+  .cover { text-align: center; padding-top: 120px; page-break-after: always; }
+  .cover h1 { font-size: 36pt; margin-bottom: 8px; }
+  .cover .tagline { font-size: 16pt; color: #6b7280; margin-bottom: 40px; }
+  .cover .meta { font-size: 11pt; color: #9ca3af; margin-top: 60px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px 0; font-size: 10pt; }
+  th { background: #4f46e5; color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-size: 10pt; font-family: 'Consolas', monospace; }
+  pre { background: #1e1e2e; color: #cdd6f4; padding: 14px; border-radius: 6px; font-size: 9.5pt; overflow-x: auto; margin: 10px 0 16px 0; font-family: 'Consolas', monospace; line-height: 1.5; }
+  pre .comment { color: #6c7086; }
+  pre .keyword { color: #cba6f7; }
+  pre .string { color: #a6e3a1; }
+  ul, ol { margin: 6px 0 12px 22px; }
+  li { margin-bottom: 3px; }
+  .flow-box { background: #f0f0ff; border-left: 4px solid #4f46e5; padding: 12px 16px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+  .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 3px; }
+  .section { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+  .two-col { display: flex; gap: 24px; }
+  .two-col > div { flex: 1; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 9pt; font-weight: 600; margin-right: 4px; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-purple { background: #ede9fe; color: #5b21b6; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <h1>LostLink</h1>
+  <div class="tagline">Smart Campus Lost &amp; Found Platform</div>
+  <p style="font-size:12pt; color:#374151; max-width:500px; margin:0 auto;">
+    A full-stack MERN application that helps students report, search, match, verify, and recover lost belongings on campus using weighted similarity matching and secure ownership verification.
+  </p>
+  <div class="meta">
+    <p><strong>Technology:</strong> React &bull; Node.js &bull; Express &bull; MongoDB</p>
+    <p><strong>Version:</strong> 1.0.0</p>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<h2>Table of Contents</h2>
+<ol style="font-size:11pt; line-height:2;">
+  <li>Problem Statement</li>
+  <li>Solution</li>
+  <li>Core Workflow</li>
+  <li>Key Features</li>
+  <li>Technology Stack</li>
+  <li>System Architecture</li>
+  <li>Matching Algorithm</li>
+  <li>Claim &amp; Verification Flow</li>
+  <li>Data Models</li>
+  <li>API Endpoints</li>
+  <li>Security Measures</li>
+  <li>Design System</li>
+  <li>Deployment</li>
+  <li>Future Scope</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- 1. PROBLEM -->
+<h2>1. Problem Statement</h2>
+<p>On most campuses, lost-and-found relies on scattered channels:</p>
+<ul>
+  <li>WhatsApp groups where messages get buried</li>
+  <li>Physical notice boards that nobody checks</li>
+  <li>Social media posts with no structure</li>
+  <li>Word-of-mouth that reaches very few people</li>
+</ul>
+<p><strong>Result:</strong> Students who lose items have no centralized place to report them. Students who find items have no way to reach the owner. There is no structured matching, no verification before handoff, and items go unreturned.</p>
+
+<!-- 2. SOLUTION -->
+<h2>2. Solution</h2>
+<p>LostLink introduces a structured, campus-wide lost-and-found workflow that centralizes the entire process into one platform:</p>
+<ol>
+  <li><strong>Report</strong> &mdash; Students report lost or found items with detailed information</li>
+  <li><strong>Search &amp; Filter</strong> &mdash; Other students search and filter reports server-side</li>
+  <li><strong>Smart Matching</strong> &mdash; A weighted algorithm automatically compares LOST and FOUND reports</li>
+  <li><strong>Claim &amp; Verify</strong> &mdash; Claimant answers a verification question; verified server-side</li>
+  <li><strong>Approve &amp; Resolve</strong> &mdash; Finder approves or rejects; approved claims mark item as recovered</li>
+</ol>
+
+<!-- 3. WORKFLOW -->
+<h2>3. Core Workflow</h2>
+<div class="flow-box">
+<pre style="background:transparent; color:#1a1a1a; margin:0; padding:0;">
+Student A loses a laptop
+        &darr;
+Reports it on LostLink (title, category, location, description, date)
+        &darr;
+Student B finds a laptop
+        &darr;
+Reports it with a verification question:
+"What brand is the laptop and what color sticker is on it?"
+        &darr;
+Matching Engine compares the two reports &rarr; Score: 94% (Very Strong Match)
+        &darr;
+Student A sees the match, claims the item
+        &darr;
+Answers: "HP, blue sticker"
+        &darr;
+Backend verifies answer (never exposed to frontend)
+        &darr;
+Correct &rarr; Claim PENDING
+        &darr;
+Student B approves
+        &darr;
+Item RESOLVED &mdash; Item Recovered
+</pre>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 4. KEY FEATURES -->
+<h2>4. Key Features</h2>
+
+<h3>4.1 User Authentication</h3>
+<ul>
+  <li>Register and login with email/password</li>
+  <li>JWT-based session management (7-day token expiry)</li>
+  <li>Passwords hashed with bcryptjs (never stored plaintext)</li>
+  <li>Rate limiting: 20 requests per 15 minutes on auth endpoints</li>
+</ul>
+
+<h3>4.2 Lost &amp; Found Reporting</h3>
+<ul>
+  <li>10-step multi-step form for detailed reporting</li>
+  <li>Basic info: title, category, description</li>
+  <li>Item details: brand, model, color, size, distinctive features</li>
+  <li>Location with type (bus, train, school, office, etc.)</li>
+  <li>Identification: serial number, IMEI, engravings, unique markings</li>
+  <li>Photo upload with previews</li>
+  <li>For FOUND items: verification question and answer</li>
+  <li>Ownership proof and security information</li>
+  <li>Contact preferences and privacy settings</li>
+</ul>
+
+<h3>4.3 Search &amp; Filtering</h3>
+<ul>
+  <li>Server-side search by title, description, category, location, brand</li>
+  <li>Filter by type (LOST/FOUND), category, status, date</li>
+  <li>Pagination support (12 items per page)</li>
+  <li>All filtering happens in MongoDB &mdash; no client-side overhead</li>
+</ul>
+
+<h3>4.4 Smart Matching Engine</h3>
+<p>A weighted scoring algorithm compares every LOST item against every FOUND item (and vice versa):</p>
+<table>
+  <tr><th>Factor</th><th>Weight</th><th>Scoring Logic</th></tr>
+  <tr><td>Category</td><td>30%</td><td>Same category = 30, different = 0</td></tr>
+  <tr><td>Location</td><td>25%</td><td>Jaccard similarity on normalized tokens; exact = 25, similar = partial</td></tr>
+  <tr><td>Description</td><td>25%</td><td>Jaccard keyword similarity (stop words filtered)</td></tr>
+  <tr><td>Date</td><td>20%</td><td>Same day = 20, 1 day = 15, 2 days = 10, 3 days = 5</td></tr>
+</table>
+<p><strong>Match Strength Labels:</strong></p>
+<ul>
+  <li><span class="badge badge-green">90&ndash;100%</span> Very Strong Match</li>
+  <li><span class="badge badge-blue">75&ndash;89%</span> Strong Match</li>
+  <li><span class="badge badge-yellow">60&ndash;74%</span> Possible Match</li>
+  <li>Below 60%: Not displayed</li>
+</ul>
+<p>Only opposite types are compared (LOST &harr; FOUND). Resolved items are excluded. Top 5 matches returned.</p>
+
+<h3>4.5 Claim &amp; Verification</h3>
+<ul>
+  <li>User claims a FOUND item by answering the verification question</li>
+  <li>Answer verified server-side (case-insensitive, trimmed)</li>
+  <li>Verification answer is <strong>never exposed</strong> to the frontend</li>
+  <li>Correct answer &rarr; Claim PENDING, item &rarr; CLAIM_PENDING</li>
+  <li>Finder approves &rarr; Claim APPROVED, item &rarr; RESOLVED</li>
+  <li>Finder rejects &rarr; Claim REJECTED, item &rarr; ACTIVE</li>
+  <li>All other pending claims on same item auto-rejected on approval</li>
+</ul>
+
+<h3>4.6 Dashboard</h3>
+<ul>
+  <li>Total lost items, found items, matches, recovered items</li>
+  <li>Recent activity feed</li>
+  <li>Quick actions to report or browse</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 5. TECH STACK -->
+<h2>5. Technology Stack</h2>
+<div class="two-col">
+  <div>
+    <h3>Frontend</h3>
+    <table>
+      <tr><th>Technology</th><th>Purpose</th></tr>
+      <tr><td>React 19</td><td>UI library</td></tr>
+      <tr><td>Vite 8</td><td>Build tool, HMR dev server</td></tr>
+      <tr><td>Tailwind CSS 4</td><td>Utility-first styling</td></tr>
+      <tr><td>React Router 7</td><td>Client-side routing</td></tr>
+      <tr><td>Axios</td><td>HTTP client with interceptors</td></tr>
+      <tr><td>Lucide React</td><td>Icon library</td></tr>
+    </table>
+  </div>
+  <div>
+    <h3>Backend</h3>
+    <table>
+      <tr><th>Technology</th><th>Purpose</th></tr>
+      <tr><td>Node.js</td><td>Runtime</td></tr>
+      <tr><td>Express 5</td><td>Web framework</td></tr>
+      <tr><td>Mongoose 9</td><td>MongoDB ODM</td></tr>
+      <tr><td>JWT</td><td>Authentication</td></tr>
+      <tr><td>bcryptjs</td><td>Password hashing</td></tr>
+      <tr><td>express-rate-limit</td><td>Rate limiting</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3>Database</h3>
+<table>
+  <tr><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>MongoDB Atlas</td><td>Cloud-hosted database</td></tr>
+  <tr><td>Mongoose</td><td>Schema validation, indexes</td></tr>
+</table>
+
+<!-- 6. ARCHITECTURE -->
+<h2>6. System Architecture</h2>
+<pre>
+React (Vite)
+    &darr;
+Axios &rarr; Express REST API
+            &darr;
+    &plusmn;&minus;&minus;&minus;&minus;&plusmn;&minus;&minus;&minus;&minus;&plusmn;&minus;&minus;&minus;&minus;&plusmn;
+    &darr;       &darr;       &darr;
+  Auth    Items   Claims
+  JWT     CRUD    Verify
+  bcrypt  Search  Approve
+          Filter  Reject
+            &darr;
+    Matching Service
+    (Weighted Similarity)
+            &darr;
+        Mongoose
+            &darr;
+        MongoDB Atlas
+</pre>
+<p><strong>Deployment:</strong> Single Render service serves both the API (<code>/api/*</code>) and the React SPA (static files). Frontend also deployed on Vercel.</p>
+
+<div class="page-break"></div>
+
+<!-- 7. MATCHING ALGORITHM -->
+<h2>7. Matching Algorithm</h2>
+<p>Located in <code>server/services/matchingService.js</code>.</p>
+
+<h3>Processing Flow</h3>
+<ol>
+  <li>Fetch the source item</li>
+  <li>Determine opposite type (LOST &rarr; search FOUND, FOUND &rarr; search LOST)</li>
+  <li>Fetch all active opposite-type items (exclude resolved, exclude self)</li>
+  <li>For each candidate, calculate four sub-scores</li>
+  <li>Sum scores, filter below 60%, sort descending, return top 5</li>
+</ol>
+
+<h3>Scoring Details</h3>
+<table>
+  <tr><th>Factor</th><th>Weight</th><th>Logic</th></tr>
+  <tr><td>Category</td><td>30</td><td>Exact string match (case-insensitive) = 30, else 0</td></tr>
+  <tr><td>Location</td><td>25</td><td>Normalize &rarr; tokenize &rarr; Jaccard similarity. &ge;0.7 = 23, &ge;0.4 = 18, &gt;0 = 10, partial token match = 8</td></tr>
+  <tr><td>Description</td><td>25</td><td>Normalize &rarr; remove stop words &rarr; tokenize &rarr; Jaccard similarity &times; 25</td></tr>
+  <tr><td>Date</td><td>20</td><td>Same day = 20, 1 day diff = 15, 2 days = 10, 3 days = 5, &gt;3 = 0</td></tr>
+</table>
+
+<h3>Text Processing</h3>
+<ul>
+  <li>Lowercase</li>
+  <li>Remove punctuation</li>
+  <li>Trim whitespace</li>
+  <li>Remove stop words: the, a, an, with, and, is, was, near, at, in, on, of, to, for, it, this, that, or, but, not, be, are, from</li>
+  <li>Tokenize by space</li>
+  <li>Remove tokens with length &le; 1</li>
+</ul>
+
+<h3>Match Output</h3>
+<pre>
+{
+  item: { id, title, type },
+  matches: [
+    {
+      item: { id, title, description, category, type, location, date, image },
+      score: 94,
+      strength: "VERY_STRONG",
+      reasons: ["Same category", "Same location", "Similar description", "Same date"]
+    }
+  ]
+}
+</pre>
+
+<!-- 8. CLAIM FLOW -->
+<h2>8. Claim &amp; Verification Flow</h2>
+<div class="flow-box">
+<pre style="background:transparent; color:#1a1a1a; margin:0; padding:0;">
+User claims FOUND item
+        &darr;
+Enters verification answer
+        &darr;
+Backend verifies answer (never exposed to frontend)
+        &darr;
+    Correct? &mdash;&mdash; YES &rarr; Claim PENDING
+              &mdash;&mdash; NO  &rarr; 400 "Incorrect verification answer"
+        &darr;
+Finder reviews claim
+        &darr;
+    Approve? &rarr; Claim APPROVED &rarr; Item RESOLVED
+              All other pending claims &rarr; REJECTED
+    Reject?  &rarr; Claim REJECTED &rarr; Item ACTIVE
+</pre>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 9. DATA MODELS -->
+<h2>9. Data Models</h2>
+
+<h3>9.1 User</h3>
+<table>
+  <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>name</td><td>String</td><td>Required, max 50 chars</td></tr>
+  <tr><td>email</td><td>String</td><td>Required, unique, lowercase</td></tr>
+  <tr><td>password</td><td>String</td><td>bcrypt hashed, select: false</td></tr>
+  <tr><td>role</td><td>String</td><td>student (default) or admin</td></tr>
+</table>
+
+<h3>9.2 Item (35+ fields)</h3>
+<table>
+  <tr><th>Section</th><th>Fields</th></tr>
+  <tr><td>Core</td><td>title, description, category, type (LOST/FOUND), location, date, status, image, userId</td></tr>
+  <tr><td>Details</td><td>brand, model, color, size, distinctiveFeatures, approximateValue</td></tr>
+  <tr><td>Date/Time</td><td>lostTime, timeApproximate, lastSeenDate, lastSeenTime</td></tr>
+  <tr><td>Location</td><td>locationDetails, locationType, latitude, longitude</td></tr>
+  <tr><td>Identification</td><td>serialNumber, imei, deviceModel, engraving, uniqueMarkings, stickers, otherIdentifiers</td></tr>
+  <tr><td>Photos</td><td>image, photos[], proofDocuments[]</td></tr>
+  <tr><td>Circumstances</td><td>circumstances</td></tr>
+  <tr><td>Verification</td><td>verificationQuestion, verificationAnswer (hidden)</td></tr>
+  <tr><td>Security</td><td>securityInfo: deviceLocked, cardBlocked, idReported, otherMeasures</td></tr>
+  <tr><td>Contact</td><td>contactName, contactPhone, contactEmail, preferredContact</td></tr>
+  <tr><td>Privacy</td><td>privacySettings: showPhone, showEmail, showExactLocation, showSerialNumber, showOwnershipProof</td></tr>
+  <tr><td>Notifications</td><td>inApp, email, sms</td></tr>
+</table>
+<p><strong>Statuses:</strong> ACTIVE, CLAIM_PENDING, RESOLVED, POTENTIAL_MATCH, FOUND, CLAIMED, RETURNED, CLOSED</p>
+<p><strong>Categories:</strong> Electronics, Documents/IDs, Wallet/Purse, Keys, Jewelry, Clothing, Bags/Luggage, Books/Stationery, Other</p>
+<p><strong>Database Indexes:</strong> type+status, category, location, date, userId, createdAt</p>
+
+<h3>9.3 Claim</h3>
+<table>
+  <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>itemId</td><td>ObjectId</td><td>Reference to Item</td></tr>
+  <tr><td>claimantId</td><td>ObjectId</td><td>Reference to User</td></tr>
+  <tr><td>answer</td><td>String</td><td>The submitted answer</td></tr>
+  <tr><td>status</td><td>String</td><td>PENDING, APPROVED, REJECTED</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 10. API ENDPOINTS -->
+<h2>10. API Endpoints</h2>
+
+<h3>Authentication (Rate Limited: 20 req/15 min)</h3>
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Body</th><th>Auth</th><th>Description</th></tr>
+  <tr><td>POST</td><td>/api/auth/register</td><td>name, email, password</td><td>No</td><td>Register new user</td></tr>
+  <tr><td>POST</td><td>/api/auth/login</td><td>email, password</td><td>No</td><td>Login</td></tr>
+  <tr><td>GET</td><td>/api/auth/me</td><td>&mdash;</td><td>Yes</td><td>Get current user</td></tr>
+</table>
+
+<h3>Items</h3>
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+  <tr><td>POST</td><td>/api/items</td><td>Yes</td><td>Create item</td></tr>
+  <tr><td>GET</td><td>/api/items</td><td>No</td><td>List/search/filter items</td></tr>
+  <tr><td>GET</td><td>/api/items/:id</td><td>No</td><td>Get item details</td></tr>
+  <tr><td>PUT</td><td>/api/items/:id</td><td>Yes (owner)</td><td>Update item</td></tr>
+  <tr><td>DELETE</td><td>/api/items/:id</td><td>Yes (owner)</td><td>Delete item</td></tr>
+  <tr><td>GET</td><td>/api/items/mine</td><td>Yes</td><td>Get user's items</td></tr>
+  <tr><td>GET</td><td>/api/items/my-matches</td><td>Yes</td><td>Get matches for user's items</td></tr>
+  <tr><td>GET</td><td>/api/items/:id/matches</td><td>No</td><td>Get matches for item</td></tr>
+</table>
+
+<h3>Claims</h3>
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+  <tr><td>POST</td><td>/api/claims</td><td>Yes</td><td>Submit claim (requires correct answer)</td></tr>
+  <tr><td>GET</td><td>/api/claims/mine</td><td>Yes</td><td>Get user's submitted claims</td></tr>
+  <tr><td>GET</td><td>/api/claims/incoming</td><td>Yes</td><td>Get claims on user's found items</td></tr>
+  <tr><td>PATCH</td><td>/api/claims/:id/approve</td><td>Yes (finder)</td><td>Approve claim</td></tr>
+  <tr><td>PATCH</td><td>/api/claims/:id/reject</td><td>Yes (finder)</td><td>Reject claim</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 11. SECURITY -->
+<h2>11. Security Measures</h2>
+<table>
+  <tr><th>Measure</th><th>Implementation</th></tr>
+  <tr><td>Password Storage</td><td>bcryptjs hashing, never plaintext</td></tr>
+  <tr><td>Session Management</td><td>JWT tokens, 7-day expiry</td></tr>
+  <tr><td>Verification Privacy</td><td>Answers never returned in API responses (<code>select: false</code>)</td></tr>
+  <tr><td>Owner-Only Fields</td><td>Serial, IMEI, contact, security info only serialized for item owner</td></tr>
+  <tr><td>Regex Injection</td><td><code>escapeRegex()</code> utility on all search/location params</td></tr>
+  <tr><td>Rate Limiting</td><td>20 requests per 15 minutes on auth endpoints</td></tr>
+  <tr><td>CORS</td><td>Restricted to configured origins</td></tr>
+  <tr><td>Error Handling</td><td>Global error handler, no stack traces exposed</td></tr>
+  <tr><td>DB Failure</td><td>Server exits with code 1 on MongoDB connection failure</td></tr>
+  <tr><td>Input Validation</td><td>Mongoose schema validation + express-validator</td></tr>
+</table>
+
+<!-- 12. DESIGN -->
+<h2>12. Design System</h2>
+<table>
+  <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+  <tr><td>Background</td><td><code>#09090B</code></td><td>Page background</td></tr>
+  <tr><td>Surface</td><td><code>#18181B</code></td><td>Card backgrounds</td></tr>
+  <tr><td>Surface Elevated</td><td><code>#27272A</code></td><td>Elevated cards, inputs</td></tr>
+  <tr><td>Border</td><td><code>#27272A</code></td><td>Borders, dividers</td></tr>
+  <tr><td>Primary</td><td><code>#818CF8</code></td><td>Buttons, links, accents (indigo)</td></tr>
+  <tr><td>Text</td><td><code>#FAFAFA</code></td><td>Primary text</td></tr>
+  <tr><td>Secondary Text</td><td><code>#A1A1AA</code></td><td>Secondary text</td></tr>
+  <tr><td>Muted</td><td><code>#71717A</code></td><td>Muted text</td></tr>
+  <tr><td>Success</td><td><code>#34D399</code></td><td>Success states (green)</td></tr>
+  <tr><td>Warning</td><td><code>#FBBF24</code></td><td>Warning states (yellow)</td></tr>
+  <tr><td>Error</td><td><code>#F87171</code></td><td>Error states (red)</td></tr>
+</table>
+<p><strong>Typography:</strong> Inter (UI), JetBrains Mono (technical). <strong>Spacing:</strong> 8px rhythm. <strong>Border Radius:</strong> 12px cards, 8px buttons.</p>
+
+<!-- 13. DEPLOYMENT -->
+<h2>13. Deployment</h2>
+<table>
+  <tr><th>Service</th><th>Platform</th><th>URL</th></tr>
+  <tr><td>Frontend</td><td>Vercel</td><td>getitback.vercel.app</td></tr>
+  <tr><td>Backend</td><td>Render</td><td>lostlink-se26.onrender.com</td></tr>
+  <tr><td>Database</td><td>MongoDB Atlas</td><td>Cloud-hosted</td></tr>
+</table>
+<p><strong>Architecture:</strong> Single Render service serves both the REST API and the React SPA in production. Frontend also deployed independently on Vercel for development.</p>
+
+<!-- 14. FUTURE -->
+<h2>14. Future Scope</h2>
+<table>
+  <tr><th>Enhancement</th><th>Description</th></tr>
+  <tr><td>AI Image Similarity</td><td>Computer vision to match item photos</td></tr>
+  <tr><td>OCR for IDs</td><td>Extract text from ID cards found with items</td></tr>
+  <tr><td>Semantic Text Embeddings</td><td>Replace keyword matching with embedding-based similarity</td></tr>
+  <tr><td>Email/SMS Notifications</td><td>Alert students when a potential match is found</td></tr>
+  <tr><td>QR-based Item Tags</td><td>Generate QR codes for items to speed up identification</td></tr>
+  <tr><td>Multi-campus Support</td><td>Extend to multiple institutions</td></tr>
+  <tr><td>Mobile Application</td><td>React Native companion app</td></tr>
+  <tr><td>Push Notifications</td><td>Real-time match alerts</td></tr>
+</table>
+
+<hr style="margin-top:40px;">
+<p style="text-align:center; color:#9ca3af; font-size:10pt; margin-top:16px;">
+  LostLink &mdash; Smart Campus Lost &amp; Found Platform &bull; Version 1.0.0
+</p>
+
+</body>
+</html>

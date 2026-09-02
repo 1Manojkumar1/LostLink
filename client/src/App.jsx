@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AuthCallback from './pages/AuthCallback';
 import BrowseItems from './pages/BrowseItems';
 import ItemDetails from './pages/ItemDetails';
 import ReportItem from './pages/ReportItem';
@@ -35,6 +36,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/items" element={<BrowseItems />} />
             <Route path="/items/:id" element={<ItemDetails />} />
             <Route

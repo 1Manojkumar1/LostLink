@@ -28,23 +28,21 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('lostlink_token', res.data.token);
-    setUser(res.data.user);
+  const loginWithToken = async (token) => {
+    localStorage.setItem('lostlink_token', token);
+    const res = await api.get('/auth/me');
+    setUser(res.data?.user || res.data);
     return res.data;
   };
 
-  const register = async (name, email, password, phone) => {
-    const res = await api.post('/auth/register', { name, email, password, phone });
-    localStorage.setItem('lostlink_token', res.data.token);
-    setUser(res.data.user);
-    return res.data;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('lostlink_token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+    } finally {
+      localStorage.removeItem('lostlink_token');
+      setUser(null);
+    }
   };
 
   const isAuthenticated = !!user;
@@ -53,8 +51,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAuthenticated,
-    login,
-    register,
+    loginWithToken,
     logout,
   }), [user, loading, isAuthenticated]);
 

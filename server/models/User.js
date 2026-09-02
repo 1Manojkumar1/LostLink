@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -17,16 +16,13 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
     },
-    phone: {
+    googleId: {
       type: String,
-      trim: true,
-      match: [/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number (e.g., +1234567890)'],
+      unique: true,
+      sparse: true,
     },
-    password: {
+    avatar: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
-      select: false,
     },
     role: {
       type: String,
@@ -39,21 +35,8 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.pre('save', async function () {
-  if (!this.isModified('password')) {
-    return;
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
 UserSchema.methods.toJSON = function () {
   const user = this.toObject();
-  delete user.password;
   return user;
 };
 

@@ -139,6 +139,54 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-weight: 500;
+    border-radius: var(--radius-button);
+    padding: 8px 16px;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-outline:hover {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-text-disabled);
+  }
+  .btn-outline:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-google {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-weight: 500;
+    border-radius: var(--radius-button);
+    padding: 10px 16px;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-google:hover {
+    background-color: var(--color-surface-elevated);
+    border-color: var(--color-text-disabled);
+  }
+  .btn-google:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   .btn-danger {
     background-color: var(--color-error);
     color: white;
